@@ -1,0 +1,211 @@
+#include <iostream>
+#include <time.h>
+#include <stdio.h>
+#include <algorithm>
+#include <stdlib.h>
+using namespace std;
+int n;
+float a[10000001];
+float b[10000001];
+void TaoMang(float a[], int n)
+{
+	for (int i = 1; i <= n; ++i)
+	{
+		a[i] = rand()  + 100 + (float)rand() / (RAND_MAX);
+	}
+}
+void XuatMang(float a[], int n)
+{
+	for (int i = 1; i <= n; ++i)
+	{
+		cout << a[i] << endl;
+	}
+}
+void coppy(float mang1[], float mang2[], int n)
+{
+	int i = 0;
+	for (i = 0; i < n; i++)
+	{
+		mang1[i] = mang2[i];
+	}
+}
+int partition1(float arr[], int low, int high)
+{
+	int pivot = arr[high];
+	int left = low;
+	int right = high - 1;
+	while (true) {
+		while (left <= right && arr[left] < pivot) left++;
+		while (right >= left && arr[right] > pivot) right--;
+		if (left >= right) break;
+		swap(arr[left], arr[right]);
+		left++;
+		right--;
+	}
+	swap(arr[left], arr[high]);
+	return left;
+}
+void quickSort(float arr[], int low, int high)
+{
+	if (low < high)
+	{
+		int pi = partition1(arr, low, high);
+		quickSort(arr, low, pi - 1);
+		quickSort(arr, pi + 1, high);
+	}
+}
+void Merge(float a[], int left, int mid, int right)
+{
+	int* temp;
+	int i = left;
+	int j = mid + 1;
+
+	temp = new int[right - left + 1];
+
+	for (int k = 0; k <= right - left; k++)
+	{
+		if (a[i] < a[j])
+		{
+			temp[k] = a[i];
+			i++;
+		}
+		else
+		{
+			temp[k] = a[j];
+			j++;
+		}
+
+		if (i == mid + 1)
+		{
+			while (j <= right)
+			{
+				k++;
+				temp[k] = a[j];
+				j++;
+			}
+			break;
+		}
+
+		if (j == right + 1)
+		{
+			while (i <= mid)
+			{
+				k++;
+				temp[k] = a[i];
+				i++;
+			}
+			break;
+		}
+	}
+
+	for (int k = 0; k <= right - left; k++)
+		a[left + k] = temp[k];
+	delete temp;
+}
+
+void MergeSort(float a[], int left, int right)
+{
+	if (right > left)
+	{
+		int mid;
+		mid = (left + right) / 2;
+		MergeSort(a, left, mid);
+		MergeSort(a, mid + 1, right);
+		Merge(a, left, mid, right);
+	}
+}
+void heapify(float arr[], int n, int i)
+{
+	int largest = i;
+	int l = 2 * i + 1;
+	int r = 2 * i + 2;
+	if (l < n && arr[l] > arr[largest])
+		largest = l;
+	if (r < n && arr[r] > arr[largest])
+		largest = r;
+	if (largest != i)
+	{
+		swap(arr[i], arr[largest]);
+		heapify(arr, n, largest);
+	}
+}
+void heapSort(float arr[], int n)
+{
+	for (int i = n / 2 - 1; i >= 0; i--)
+		heapify(arr, n, i);
+	for (int i = n - 1; i > 0; i--)
+	{
+		swap(arr[0], arr[i]);
+		heapify(arr, i, 0);
+	}
+}
+double quickSortTime(float a[], float b[], int low, int high)
+{
+	coppy(a, b, n);
+	clock_t start, end;
+	start = clock();
+	quickSort(a, low, high);
+	end = clock();
+	float time_use = (float)(end - start) / CLOCKS_PER_SEC;
+	return time_use;
+}
+double mergeSortTime(float a[], float b[], int l, int r)
+{
+	if (r > 300000) return -1;
+	coppy(a, b, n);
+	clock_t start, end;
+	start = clock();
+	MergeSort(a, l, r);
+	end = clock();
+	double time_use = (double)(end - start) / CLOCKS_PER_SEC;
+	return time_use;
+}
+double heapSortTime(float a[], float b[], int n)
+{
+	coppy(a, b, n);
+	clock_t start, end;
+	start = clock();
+	heapSort(a, n);
+	end = clock();
+	double time_use = (double)(end - start) / CLOCKS_PER_SEC;
+	return time_use;
+}
+double sortTime(float a[], float b[], int n)
+{
+	coppy(a, b, n);
+	clock_t start, end;
+	start = clock();
+	sort(a + 1, a + n + 1);
+	end = clock();
+	double time_use = (double)(end - start) / CLOCKS_PER_SEC;
+	return time_use;
+}
+int cmpfunc(const void* a, const void* b)
+{
+	return ((int)a - (int)b);
+}
+double qsortTime(float a[], float b[], int n)
+{
+	coppy(a, b, n);
+	clock_t start, end;
+	start = clock();
+	qsort(a, n, sizeof(a), cmpfunc);
+	end = clock();
+	double time_use = (double)(end - start) / CLOCKS_PER_SEC;
+	return time_use;
+}
+int main()
+{
+	n = 1000000;
+	srand(time(NULL));
+	cout << "-------------------------------------------------------------------------" << endl;
+	cout << "|\t" << "DATA" << "\t|\t" << "sort" << "\t|\t" << "quicksort" << "\t|\t" << "qsort" << "\t|" << endl;
+	cout << "-------------------------------------------------------------------------" << endl;
+	for (int i = 1; i <= 10; i++)
+	{
+		TaoMang(b, n);
+		cout << "|\t" << "DATA" << i << "\t|\t" << sortTime(a, b, n) << "\t|\t   " << quickSortTime(a, b, 1, n) << "   \t| \t" << qsortTime(a, b, n) << "\t|" << endl;
+		cout << "-------------------------------------------------------------------------" << endl;
+	}
+	return 0;
+}
